@@ -2,7 +2,7 @@ import "./App.css";
 import { useState } from "react";
 
 // cara membuat komponen dengan function
-const Button = ({ children }) => {
+const Button = ({ children, onClick }) => {
   return <button className="button">{children}</button>;
 };
 
@@ -14,11 +14,38 @@ const Square = ({ number, onClick }) => {
   );
 };
 
+function calculateWinner(board) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return board[a];
+    }
+  }
+  return null;
+}
+
 const App = () => {
 
   const [isXNext, setIsXNext] = useState(false);
   const [board, setBoard] = useState(Array(9).fill(null));
+  const winner = calculateWinner(board);
+
+  const handleResetGameClick = () => {
+    setIsXNext(false);
+    setBoard(Array(9).fill(null));
+  }
   const handlesquareClick = (index) => {
+    if (winner) return;
     setBoard((currboard) => {
       const boardCopy = [...currboard];
 
@@ -33,6 +60,8 @@ const App = () => {
       return boardCopy;
     })
   };
+
+
 
   return (
     <div className="container">
@@ -54,8 +83,14 @@ const App = () => {
         </div>
       </div>
       <div className="info">
-        <div className="status">Next player: {isXNext ? "X" : "O"}</div>
-        <Button className="">New Game</Button>
+        <div className="status">
+          {winner ? (
+            <p>Winner: {winner}</p>
+          ) : (
+            <p>Next Player: {isXNext ? "X" : "O"}</p>
+          )}
+          </div>
+        <Button onClick={handleResetGameClick}>New Game</Button>
         <div className="history">
           <p>history</p>
           <Button>step 1</Button>
