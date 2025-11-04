@@ -3,53 +3,53 @@ import { useState } from "react";
 import Board from "./components/Board";
 import GameInfo from "./components/GameInfo";
 import Timeline from "./components/Timeline";
+import calculateWinner from "./utils/CalculateWinner";
 
 // cara membuat komponen dengan function
 
-function calculateWinner(board) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      return board[a];
-    }
-  }
-  return null;
-}
-
 const App = () => {
-  const [isXNext, setIsXNext] = useState(false);
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const winner = calculateWinner(board);
+  const [timeline, setTimeline] = useState([
+    {
+      isXNext: false,
+      board: Array(9).fill(null),
+    },
+  ]);
 
+  const [currentStep, setCurrentStep] = useState(0);
+  const board = timeline[currentStep].board;
+  const isXNext = timeline[currentStep]?.isXNext || false;
+  const winner = calculateWinner(board);
   const handleResetGameClick = () => {
-    setIsXNext(false);
-    setBoard(Array(9).fill(null));
+    setTimeline([{
+      isXNext: false,
+      board: Array(9).fill(null)
+    }]);
+    setCurrentStep(0);
   };
   const handlesquareClick = (index) => {
     if (winner) return;
-    setBoard((currboard) => {
-      const boardCopy = [...currboard];
 
-      if (boardCopy[index]) {
-        return boardCopy;
-      }
+    const newBoard = [...board];
 
-      boardCopy[index] = isXNext ? "X" : "O";
+    if (newBoard[index]) {
+      return;
+    }
 
-      setIsXNext(!isXNext);
+    // Isi kotak dengan X atau O
+    newBoard[index] = isXNext ? "X" : "O";
 
-      return boardCopy;
-    });
+    setTimeline([
+      ...timeline.slice(0, currentStep + 1),
+      {
+        board: newBoard,
+        isXNext: !isXNext,
+      },
+    ]);
+    setCurrentStep(currentStep + 1);
+  };
+
+  const handleItemTimelineClick = (index) => {
+    setCurrentStep(index);
   };
 
   return (
@@ -61,7 +61,10 @@ const App = () => {
           isXNext={isXNext}
           handleResetGameClick={handleResetGameClick}
         />
-        <Timeline/>
+        <Timeline
+          timeline={timeline}
+          onItemTimelineClick={handleItemTimelineClick}
+        />
       </div>
       <br />
     </div>

@@ -1,10 +1,14 @@
-const Timeline = () => {
+import Button from "./Button"; 
+
+const Timeline = ({ timeline, onItemTimelineClick }) => {
   return (
     <div className="history">
       <p>history</p>
-      <button className="button">step 1</button>
-      <button className="button">step 2</button>
-      <button className="button">step 3</button>
+      {
+        timeline.map((_, index) => (
+          <Button key={index} onClick={() => onItemTimelineClick (index)} >Go to move {index}</Button>
+        ))
+      }
     </div>
   );
 };
